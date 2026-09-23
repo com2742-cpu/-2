@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>국립중앙과학관 사이버 해킹 탈출게임</title>
+    <!-- Web App & PWA standard tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#0a0e17',
+                            card: '#131b2e',
+                            green: '#00ffcc',
+                            blue: '#0099ff',
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            danger: '#ff3366',
+                            gold: '#fbbf24'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mobile Touch & Safe Area Fixes for iOS & Android */
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+        }
+
+        body {
+            background-color: #0a0e17;
+            color: #f1f5f9;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            font-size: 16px;
+        }
+
+        /* Prevent auto-zoom on iOS inputs */
+        input, select, textarea, button {
+            font-size: 16px !important;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0e17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ffcc;
+        }
+
+        /* Glowing Effects */
+        .glow-green {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(0, 153, 255, 0.4);
+        }
+        .glow-danger {
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+        }
+        .text-glow {
+            text-shadow: 0 0 8px currentColor;
+        }
+
+        /* Scanline Overlay */
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between font-sans selection:bg-cyber-green selection:text-black">
+
+    <div class="fixed inset-0 scanline opacity-30 z-50"></div>
+
+    <!-- Header / Navbar -->
+    <header class="bg-cyber-card/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showHome()">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyber-green to-cyber-blue flex items-center justify-center font-bold text-black shadow-lg">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm md:text-base tracking-wider text-white flex items-center gap-1.5">
+                        국립중앙과학관 <span class="text-cyber-green text-xs px-2 py-0.5 rounded bg-cyber-green/10 border border-cyber-green/30">CYBER LOCK</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">사이버 보안 해킹 해독 미션</p>
+                </div>
+            </div>
+
+            <!-- Profile / Controls Header Status -->
+            <div id="headerStatus" class="flex items-center gap-2">
+                <button onclick="app.showTeacherModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
+                    <i class="fa-solid fa-user-shield text-cyber-purple"></i>
+                    <span>교사 모드</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main id="appContainer" class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow flex flex-col justify-center">
+        <!-- Content injected dynamically via JS -->
+    </main>
+
+    <!-- Global Toast Notice -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-5 py-3 rounded-xl bg-slate-900/95 border border-cyber-green/40 text-cyber-green shadow-2xl flex items-center gap-3 text-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-info"></i>
+        <span id="toastMessage">알림 메시지</span>
+    </div>
+
+    <!-- Teacher Access & Dashboard Modal -->
+    <div id="teacherModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-card border border-slate-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-5 relative max-h-[90vh] flex flex-col">
+            <button onclick="app.closeTeacherModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div class="w-10 h-10 rounded-xl bg-cyber-purple/20 text-cyber-purple flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">교사 전용 제어 센터</h3>
+                    <p class="text-xs text-slate-400">학생들의 미션 진행 상태 모니터링 및 코드 관리</p>
+                </div>
+            </div>
+
+            <!-- Passcode Login Layer -->
+            <div id="teacherLoginLayer" class="space-y-4 py-6">
+                <p class="text-xs text-slate-300 text-center">보안 인증용 접근 암호를 입력하세요. (기본: 1204)</p>
+                <div class="max-w-xs mx-auto space-y-3">
+                    <input type="password" id="teacherPasscode" placeholder="암호 입력" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg font-mono focus:border-cyber-purple outline-none">
+                    <button onclick="app.verifyTeacherPasscode()" class="w-full bg-cyber-purple hover:bg-purple-600 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                        인증 확인
+                    </button>
+                </div>
+            </div>
+
+            <!-- Teacher Dashboard View -->
+            <div id="teacherDashboardLayer" class="hidden flex-grow flex flex-col space-y-4 overflow-hidden">
+                <div class="flex justify-between items-center">
+                    <div class="text-xs text-slate-400">
+                        총 제출 인원: <span id="teacherStudentCount" class="text-cyber-green font-bold">0</span>명
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="app.exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs rounded-lg text-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-file-csv text-green-400"></i> CSV 내보내기
+                        </button>
+                        <button onclick="app.clearTeacherData()" class="px-3 py-1.5 bg-red-950/60 hover:bg-red-900 border border-red-700/50 text-xs rounded-lg text-red-300 flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> 기록 초기화
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-grow overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900/80 sticky top-0 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">학번/이름</th>
+                                <th class="p-3">완료 테마</th>
+                                <th class="p-3">해독 조각</th>
+                                <th class="p-3">최종 오버라이드</th>
+                                <th class="p-3">소요시간</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacherTableBody" class="divide-y divide-slate-800/50">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificate Modal -->
+    <div id="certificateModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gradient-to-b from-slate-900 to-cyber-card border-2 border-cyber-gold rounded-3xl p-6 md:p-8 w-full max-w-xl text-center space-y-6 relative shadow-2xl">
+            <button onclick="app.closeCertificate()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="w-20 h-20 mx-auto rounded-full bg-cyber-gold/10 border-2 border-cyber-gold flex items-center justify-center text-cyber-gold text-3xl shadow-lg">
+                <i class="fa-solid fa-award"></i>
+            </div>
+
+            <div class="space-y-2">
+                <span class="px-3 py-1 rounded-full bg-cyber-gold/20 text-cyber-gold text-xs font-bold uppercase tracking-wider">Official Certificate</span>
+                <h2 class="text-2xl font-black text-white">국립중앙과학관 사이버 보안 요원 임명장</h2>
+            </div>
+
+            <div class="border-y border-slate-800 py-6 my-2 space-y-3 text-slate-300 text-sm">
+                <p class="text-base font-semibold text-white">
+                    소속/이름: <span id="certStudentInfo" class="text-cyber-green font-mono">1학년 3반 15번 홍길동</span>
+                </p>
+                <p class="text-xs text-slate-400 leading-relaxed px-4">
+                    위 학생은 국립중앙과학관 사이버 탈출 미션의 7개 STEAM 통합 암호화 해킹 코드 조각을 모두 성공적으로 해독하고, 중앙 제어 오버라이드 시스템을 정상화하였으므로 **공식 사이버 보안 수호 요원**으로 임명합니다.
+                </p>
+                <div class="pt-2 text-xs font-mono text-slate-500">
+                    발급번호: NSM-CYBER-2026-<span id="certCode">8849</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-center">
+                <button onclick="window.print()" class="px-5 py-2.5 bg-cyber-gold text-black font-bold rounded-xl hover:bg-yellow-400 transition text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> 임명장 인쇄 / 저장
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-4 px-4 text-center text-xs text-slate-500">
+        <p>© National Science Museum STEAM Cyber Escape Room. Universal Mobile Optimized (iOS / Android).</p>
+    </footer>
+
+    <script>
+        /**
+         * Web Audio Synthesizer Engine
+         * Unlocks seamlessly on iOS/Android user touch
+         */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playBeep(freq = 600, duration = 0.08, type = 'sine') {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+
+            playSuccess() {
+                this.playBeep(523, 0.1);
+                setTimeout(() => this.playBeep(659, 0.1), 100);
+                setTimeout(() => this.playBeep(783, 0.15), 200);
+            }
+
+            playError() {
+                this.playBeep(220, 0.15, 'sawtooth');
+                setTimeout(() => this.playBeep(180, 0.2, 'sawtooth'), 150);
+            }
+
+            playDecrypt() {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => this.playBeep(400 + i * 150, 0.05, 'triangle'), i * 60);
+                }
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        // 7 Central Secret Code Fragments targeting: "국립중앙과학관"
+        const SYSTEM_SECRET_FRAGMENTS = {
+            valorant: { char: "국", index: 0 },
+            minecraft: { char: "립", index: 1 },
+            animal: { char: "중", index: 2 },
+            brawl: { char: "앙", index: 3 },
+            kpop: { char: "과", index: 4 },
+            lol: { char: "학", index: 5 },
+            roblox: { char: "관", index: 6 }
+        };
+
+        const FINAL_OVERRIDE_CODE = "국립중앙과학관";
+
+        // Theme Definitions & 10 STEAM Questions Per Theme
+        const THEMES_DATA = {
+            valorant: {
+                id: "valorant",
+                title: "발로란트",
+                subTitle: "전술 사격 & 스파이크 조준 해킹",
+                color: "from-red-500 to-rose-700",
+                badgeColor: "bg-red-500/20 text-red-400 border-red-500/30",
+                icon: "fa-crosshairs",
+                stages: [
+                    { q: "발로란트 스파이크 설치 구역의 곡선 사격 각도를 계산하려 한다. 빛과 탄환의 직선 반사 법칙에 해당하는 원리는?", options: ["반사의 법칙", "굴절의 법칙", "회절 현상", "분산 현상"], answer: 0, hint: "입사각과 반사각이 서로 같습니다." },
+                    { q: "전술 드론이 발송하는 2.4GHz 전파 주파수의 파형 특성을 분석하는 과학 영역은?", options: ["전자기학", "생물학", "지질학", "열역학"], answer: 0, hint: "전기와 자기, 파동에 관한 학문입니다." },
+                    { q: "체임버의 헤드헌터 탄환 질량이 0.02kg이고 속도가 800m/s일 때 운동 에너지는 몇 Joule인가? (E = 1/2 * m * v²)", options: ["6,400J", "3,200J", "1,600J", "800J"], answer: 1, hint: "0.5 * 0.02 * 640000 = ?" },
+                    { q: "스파이크 해체 진행률 센서에 적용된 정밀 수치계산 알고리즘의 기초 수학 분야는?", options: ["미적분학", "기하학", "확률과 통계", "정수론"], answer: 0, hint: "변화율과 누적량을 계산하는 수학 분야입니다." },
+                    { q: "연막탄에서 분사되는 미세 입자들이 공기 중에 떠돌며 빛을 산란시키는 현상은?", options: ["틴들 현상", "보일의 법칙", "모세관 현상", "삼투 현상"], answer: 0, hint: "콜로이드 입자에 의해 빛의 줄기가 보이는 현상입니다." },
+                    { q: "세이지의 얼음 장벽이 순간적으로 생성될 때 주위 열을 흡수하는 반응은?", options: ["흡열 반응", "발열 반응", "산화 반응", "환원 반응"], answer: 0, hint: "주변 온도를 낮추며 열을 빼앗는 화학 반응입니다." },
+                    { q: "바이퍼의 독가스 분자 방출 속도는 기체의 분자량이 작을수록 빠르다는 법칙은?", options: ["그레이엄의 확산 법칙", "샤를의 법칙", "아보가드로 법칙", "헤스의 법칙"], answer: 0, hint: "기체 확산 속도와 분자량 제곱근의 반비례 관계입니다." },
+                    { q: "네온의 고속 이동 시 신체 마찰로 발생하는 정전기를 방지하는 소재 특성은?", options: ["전도성 소재", "절연체", "초전도체", "강자성체"], answer: 0, hint: "전기를 잘 통하게 하여 전하를 배출합니다." },
+                    { q: "소바의 정찰 화살이 벽에 반사될 때의 각도 추적 센서에 사용되는 삼각비 함수는?", options: ["sine / cosine", "수열", "이항정리", "행렬"], answer: 0, hint: "직각삼각형 변의 비율을 나타내는 함수입니다." },
+                    { q: "킬조이의 포탑 자동 AI 레이더가 목표를 인식하는 컴퓨터 비전 기술 기반은?", options: ["딥러닝 합성곱 신경망(CNN)", "블록체인", "양자 암호", "아날로그 회로"], answer: 0, hint: "인공지능의 대표적인 이미지 인식 신경망입니다." }
+                ]
+            },
+            minecraft: {
+                id: "minecraft",
+                title: "마인크래프트",
+                subTitle: "레드스톤 회로 & 건축 공학 해킹",
+                color: "from-emerald-500 to-green-700",
+                badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+                icon: "fa-cubes",
+                stages: [
+                    { q: "레드스톤 신호는 최대 15블록까지 전달된다. 신호를 다시 15블록으로 연장하는 논리 소자 역할의 아이템은?", options: ["레드스톤 중계기", "레드스톤 횃불", "비교기", "관찰자"], answer: 0, hint: "신호를 증폭 및 지연시키는 장치입니다." },
+                    { q: "마인크래프트의 블록 건축물 구조가 지진에 견디도록 삼각 기둥 구조를 사용하는 공학 기법은?", options: ["트러스 구조", "아치 구조", "라멘 구조", "현수 구조"], answer: 0, hint: "삼각형의 변형 방지 성질을 이용한 공학 구조입니다." },
+                    { q: "피스톤 운동으로 TNT를 발사하는 캐논의 기초 원리에 해당하는 뉴턴의 운동 법칙은?", options: ["작용 반작용의 법칙", "관성의 법칙", "가속도의 법칙", "만유인력의 법칙"], answer: 0, hint: "힘을 가하면 반대 방향으로 같은 크기의 힘이 작용합니다." },
+                    { q: "레드스톤 논리 게이트 중 입력값 두 개가 모두 1일 때만 1을 출력하는 게이트는?", options: ["AND 게이트", "OR 게이트", "NOT 게이트", "XOR 게이트"], answer: 0, hint: "논리곱(AND) 연산입니다." },
+                    { q: "마인크래프트 세계의 1초는 20게임 티크(Tick)이다. 1게임 티크는 몇 초인가?", options: ["0.05초", "0.1초", "0.2초", "0.5초"], answer: 0, hint: "1 / 20 계산입니다." },
+                    { q: "용암과 물이 만나 부싯돌이나 옵시디언(흑요석)이 형성되는 암석 분류는?", options: ["화성암", "퇴적암", "변성암", "화석"], answer: 0, hint: "마그마나 용암이 식어서 굳어진 암석입니다." },
+                    { q: "네더의 포탈 유레카 좌표 계산 시 오버월드 좌표와 네더 좌표의 비율은?", options: ["8 : 1", "4 : 1", "2 : 1", "16 : 1"], answer: 0, hint: "오버월드 8블록이 네더의 1블록입니다." },
+                    { q: "슬라임 블록의 반발력을 이용한 퐁퐁 트램펄린 공학의 수직 운동 물리 원리는?", options: ["탄성 에너지 변환", "전자기 유도", "열전도", "핵융합"], answer: 0, hint: "변형된 물체가 원상태로 돌아가는 에너지입니다." },
+                    { q: "주민과의 거래 시스템 알고리즘에서 최저가를 계산하는 정렬 알고리즘은?", options: ["최소값 탐색 알고리즘", "랜덤 생성 알고리즘", "인크립션", "디퍼렌셜"], answer: 0, hint: "데이터 모음에서 가장 작은 값을 선택합니다." },
+                    { q: "마인크래프트의 픽셀(Pixel) 그래픽을 정밀하게 표현하는 컴퓨터 그래픽 최소 단위는?", options: ["화소 (Pixel)", "벡터 (Vector)", "해시 (Hash)", "바이트 (Byte)"], answer: 0, hint: "Picture Element의 약자입니다." }
+                ]
+            },
+            animal: {
+                id: "animal",
+                title: "동물의 숲",
+                subTitle: "생태계 환경 & 경제 지표 해킹",
+                color: "from-amber-400 to-yellow-600",
+                badgeColor: "bg-amber-400/20 text-amber-300 border-amber-400/30",
+                icon: "fa-leaf",
+                stages: [
+                    { q: "무주식(무 거래) 가격 변동 패턴 분석 시 사용되는 미분 통계 기법의 핵심 요소는?", options: ["변화율 추세 분석", "원소 기호 분석", "유전체 분석", "굴절률 산출"], answer: 0, hint: "시간에 따른 가격의 증가/감소 변화량을 측정합니다." },
+                    { q: "동물의 숲 섬에 자라는 버섯과 곰팡이가 생태계에서 담당하는 역할은?", options: ["분해자", "생산자", "1차 소비자", "2차 소비자"], answer: 0, hint: "유기물을 무기물로 분해하는 유기체입니다." },
+                    { q: "박물관에 기증하는 곤충의 완전변태 과정이 올바른 순서는?", options: ["알 -> 애벌레 -> 번데기 -> 성충", "알 -> 번데기 -> 애벌레 -> 성충", "알 -> 성충", "애벌레 -> 알 -> 성충"], answer: 0, hint: "번데기 단계를 거치는 변태 과정입니다." },
+                    { q: "박물관 공룡 화석의 연대를 측정할 때 사용되는 방사성 동위원소는?", options: ["탄소-14 (14C)", "우라늄-235", "수소-1", "헬륨-4"], answer: 0, hint: "생물 유해의 연대를 측정하는 표준 탄소 동위원소입니다." },
+                    { q: "너굴 은행의 복리 이자 계산 공식에서 Principal(원금)에 곱해지는 지수식의 기초 수학 개념은?", options: ["지수함수", "삼각함수", "피타고라스 정리", "행렬식"], answer: 0, hint: "거듭제곱 형태로 증가하는 함수입니다." },
+                    { q: "섬 교배꽃 만들기에서 유전 법칙(우성과 열성)을 설명한 과학자는?", options: ["멘델", "다윈", "파스퇴르", "뉴턴"], answer: 0, hint: "완두콩 실험으로 유전 법칙을 발견했습니다." },
+                    { q: "남반구와 북반구의 계절이 반대로 나타나는 지구 과학적 원인은?", options: ["지구 자전축의 기울어짐", "지구와 태양의 거리 변화", "달의 인력", "해류의 순환"], answer: 0, hint: "자전축이 약 23.5도 기울어져 공전하기 때문입니다." },
+                    { q: "바다 타일에서 낚시할 때 물고기가 찌를 건드릴 때 발생하는 파동의 종류는?", options: ["수면파 (횡파)", "종파", "전자기파", "초음파"], answer: 0, hint: "매질의 진동 방향과 파동 진행 방향이 수직인 파동입니다." },
+                    { q: "섬 평판 평가 수치 알고리즘에서 나무, 꽃, 울타리 수량의 가중 평균을 구하는 통계 수식은?", options: ["가중평균 공식", "피타고라스 정리", "소수 판별법", "최대공약수"], answer: 0, hint: "각 항목의 중요도(가중치)를 곱하여 합산하는 평균입니다." },
+                    { q: "화석과 유물의 박물관 조명 설치 시 유물의 변색을 방지하기 위한 광선 차단 필터는?", options: ["자외선 차단 필터", "적외선 강조 필터", "X선 필터", "가시광선 증폭 필터"], answer: 0, hint: "에너지가 높아 물질을 변색시키는 빛 영역입니다." }
+                ]
+            },
+            brawl: {
+                id: "brawl",
+                title: "브롤스타즈",
+                subTitle: "투사체 궤적 & 충돌 물리 해킹",
+                color: "from-blue-500 to-indigo-700",
+                badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+                icon: "fa-gamepad",
+                stages: [
+                    { q: "콜트의 투사체 속도와 캐릭터 이동 속도의 상대적 차이를 계산할 때 쓰는 물리 개념은?", options: ["상대 속도", "가속도", "중력 가속도", "평균 밀도"], answer: 0, hint: "관찰자의 움직임에 따라 달라지는 속도입니다." },
+                    { q: "리코의 탄환이 벽에 튕길 때 입사각과 반사각이 동일하게 작용하는 물리 법칙은?", options: ["반사의 법칙", "굴절의 법칙", "도플러 효과", "파스칼의 법칙"], answer: 0, hint: "빛이나 탄환이 면에 반사될 때의 기본 법칙입니다." },
+                    { q: "엘 프리모가 공중으로 점프 후 착지할 때 그리는 포탄의 포물선 운동 방정식 형태는?", options: ["2차 함수 (y = ax² + bx + c)", "1차 함수", "분수함수", "로그함수"], answer: 0, hint: "포물선을 나타내는 대수 방정식 형태입니다." },
+                    { q: "브롤러의 이동 경로 탐색 알고리즘에 자주 쓰이는 최단 경로 알고리즘은?", options: ["A* (A-Star) 알고리즘", "버블 정렬", "이진 탐색", "암호화 알고리즘"], answer: 0, hint: "내비게이션 및 게임 길찾기에 대표적인 알고리즘입니다." },
+                    { q: "자키의 진동 공격이 전달되는 매질의 진동 형태는?", options: ["음파 (탄성파)", "전자기파", "광파", "감마선"], answer: 0, hint: "땅이나 공기 같은 매질을 통해 전파되는 파동입니다." },
+                    { q: "젬 그래버 모드에서 젬이 생성되는 주기적 시간 간격을 나타내는 수학 개념은?", options: ["주기 (Period)", "진폭", "위상", "분산"], answer: 0, hint: "한 번 반복되는 데 걸리는 시간입니다." },
+                    { q: "불(Bull)의 돌진 공격 시 운동량이 커서 잘 멈추지 않는 성질은?", options: ["관성", "마찰력", "부력", "중력"], answer: 0, hint: "현재의 운동 상태를 유지하려는 물체의 성질입니다." },
+                    { q: "포코의 음파 치료 범위인 부채꼴 면적을 구하는 수학 공식은?", options: ["1/2 * r² * θ", "π * r²", "2 * π * r", "가로 * 세로"], answer: 0, hint: "반지름과 중심각(라디안)을 이용한 부채꼴 넓이 공식입니다." },
+                    { q: "스파이크의 가시 폭탄이 터져 360도로 균일하게 방출될 때의 사이 각도는?", options: ["360° / 조각 수", "180° * 조각 수", "90° + 조각 수", "360° * 2"], answer: 0, hint: "전체 360도를 등분하는 수학 공식입니다." },
+                    { q: "쇼다운 모드의 자기장 영역이 시간에 따라 줄어드는 원의 반지름 비율 감소율 계산법은?", options: ["시간에 대한 미분", "행렬 곱셈", "피타고라스 정리", "이항 분포"], answer: 0, hint: "시간 변화에 따른 반지름의 변화율입니다." }
+                ]
+            },
+            kpop: {
+                id: "kpop",
+                title: "K-POP",
+                subTitle: "음향 음파 & 무대 연출 공학 해킹",
+                color: "from-pink-500 to-rose-600",
+                badgeColor: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+                icon: "fa-music",
+                stages: [
+                    { q: "아이돌 콘서트장의 응원봉 색상이 무대 중앙 제어로 일괄 변경되는 무선 통신 기술은?", options: ["블루투스 (Bluetooth) / RF 통신", "초음파 통신", "자기 진동", "유선 랜"], answer: 0, hint: "근거리 무선 데이터 통신 기술입니다." },
+                    { q: "보컬의 높은 음(고음)과 낮은 음(저음)을 결정하는 음파의 요소는?", options: ["진동수 (Hz)", "진폭", "파형", "속도"], answer: 0, hint: "1초 동안 진동하는 횟수가 높을수록 고음입니다." },
+                    { q: "무대 연출에서 사용되는 드라이아이스 연기의 성분은?", options: ["고체 이산화탄소 (CO2)", "액체 질소", "고체 산소", "액체 수소"], answer: 0, hint: "이산화탄소를 승화시킨 물질입니다." },
+                    { q: "댄스 안무의 대형 맞춤 시 인원수를 대칭 구조로 배치하는 수학적 성질은?", options: ["대칭성 (Symmetry)", "비대칭성", "무작위성", "소수성"], answer: 0, hint: "축을 기준으로 양쪽이 균형을 이루는 성질입니다." },
+                    { q: "음악 스트리밍 사이트의 차트 랭킹 알고리즘에서 가중치를 적용하는 공식은?", options: ["가중 합산 알고리즘", "퀵 정렬", "DFS 탐색", "AES 암호화"], answer: 0, hint: "재생 수, 다운로드 수에 각각 점수를 곱해 합산합니다." },
+                    { q: "스피커 소리가 너무 커서 마이크로 다시 들어가 삐- 소리가 나는 현상은?", options: ["음향 피드백 (Feedback)", "공명 현상", "도플러 효과", "위상 반전"], answer: 0, hint: "출력된 소리가 다시 입력되어 증폭되는 현상입니다." },
+                    { q: "특정 악기 소리만 강화하거나 차단하는 음향 제어 장치는?", options: ["이퀄라이저 (EQ)", "앰프", "튜너", "메트로놈"], answer: 0, hint: "주파수 대역별 음량을 조절하는 장치입니다." },
+                    { q: "홀로그램 무대 연출에 적용되는 빛의 반사와 투과 착시 기법은?", options: ["페퍼스 고스트 (Pepper's Ghost)", "체렌코프 현상", "파스퇴르 효과", "카메라 옵스큐라"], answer: 0, hint: "투명 유리나 필름에 빛을 반사시켜 3D 이미지를 보여줍니다." },
+                    { q: "음악의 박자(BPM)를 일정하게 맞추기 위해 진동 및 소리를 내는 기준 장치는?", options: ["메트로놈", "옥타브", "신디사이저", "샘플러"], answer: 0, hint: "템포를 정확히 유지해 주는 기구입니다." },
+                    { q: "아이돌 뮤직비디오의 4K 초고화질 영상을 압축하여 전송하는 코덱 기술은?", options: ["H.264 / HEVC", "MP3", "ZIP", "TXT"], answer: 0, hint: "비디오 데이터를 효율적으로 압축하는 대표적 코덱입니다." }
+                ]
+            },
+            lol: {
+                id: "lol",
+                title: "리그 오브 레전드",
+                subTitle: "전통 매칭 알고리즘 & 통계 데이터 해킹",
+                color: "from-cyan-500 to-blue-600",
+                badgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+                icon: "fa-shield-cat",
+                stages: [
+                    { q: "LoL의 랭크 게임 대전 매칭 시 실력이 비슷한 유저를 짝지어주는 대표적 대수 알고리즘은?", options: ["Elo 레이팅 시스템", "디엑스트라 알고리즘", "비트코인 알고리즘", "몬테카를로"], answer: 0, hint: "체스 및 게임 통계에서 실력을 수치화하는 Elo 시스템입니다." },
+                    { q: "스킬 쿨타임(대기시간)이 20% 감소할 때, 원래 10초인 스킬의 대기시간은?", options: ["8초", "7초", "6초", "9초"], answer: 0, hint: "10 * (1 - 0.2) = ?" },
+                    { q: "드래곤 및 바론의 체력이 시간에 따라 비선형적으로 증가하는 수학식 모델은?", options: ["지수/다항 성장 모델", "선형 대수", "삼각비", "원주율"], answer: 0, hint: "시간 경과에 따라 더 가파르게 수치가 상승하는 모델입니다." },
+                    { q: "미니언 생성 주기와 라인 형성 속도를 계산하기 위한 수학의 분야는?", options: ["확률과 수열", "기하학", "미분기하학", "집합론"], answer: 0, hint: "일정한 시간 간격의 규칙적인 수치 나열입니다." },
+                    { q: "스킬 충돌 판정(Hitbox)을 컴퓨터에서 계산할 때 사용하는 기본 도형은?", options: ["원 및 사각형 (Bounding Box)", "복잡한 다각형", "점", "3차원 정십이면체"], answer: 0, hint: "계산량을 줄이기 위해 원이나 상자 형태로 경계를 설정합니다." },
+                    { q: "방어력이 높을수록 실질 체력(Effective HP)이 늘어나는 공식 (EHP = HP * (1 + Armor/100))의 함수 형태는?", options: ["1차 선형 함수", "로그 함수", "삼각 함수", "원식"], answer: 0, hint: "방어력 수치에 비례하여 직선 형태로 증가합니다." },
+                    { q: "와드(Ward) 시야 범위의 원형 면적을 구할 때 필요한 수학 상수는?", options: ["원주율 (π ≈ 3.14)", "자연상수 (e)", "중력상수 (g)", "플랑크 상수"], answer: 0, hint: "원의 둘레와 지름의 비율입니다." },
+                    { q: "챔피언 이동 속도 마법 저항력 계산 시 가중치가 달라지는 구간 처리 알고리즘은?", options: ["조건문 (If-Else / Piecewise)", "반복문 (For)", "재귀함수", "스택"], answer: 0, hint: "특정 수치 이상일 때 조건에 따라 다른 공식을 적용합니다." },
+                    { q: "e스포츠 경기 승률 예측 데이터 분석에 활용되는 빅데이터 AI 기법은?", options: ["머신러닝 예측 모델", "아스키 코드", "해시 테이블", "단순 가감승제"], answer: 0, hint: "과거 경기 데이터를 학습하여 승률을 예측하는 AI입니다." },
+                    { q: "스킬 연계(콤보) 입력 시 키보드 신호를 순서대로 저장했다가 처리하는 자료구조는?", options: ["큐 (Queue / FIFO)", "스택 (Stack)", "트리 (Tree)", "그래프 (Graph)"], answer: 0, hint: "먼저 들어온 명령이 먼저 실행되는 구조(선입선출)입니다." }
+                ]
+            },
+            roblox: {
+                id: "roblox",
+                title: "로블록스",
+                subTitle: "Lua 스크립팅 & 3D 물리 엔진 해킹",
+                color: "from-purple-500 to-indigo-600",
+                badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+                icon: "fa-shapes",
+                stages: [
+                    { q: "로블록스 스튜디오에서 오브젝트 위치를 지정하는 3차원 좌표계 축은?", options: ["X, Y, Z 축", "X, Y 축", "A, B, C 축", "Latitude, Longitude"], answer: 0, hint: "가로, 세로, 높이를 나타내는 3개의 축입니다." },
+                    { q: "로블록스 게임 개발 시 주로 사용되는 프로그래밍 언어는?", options: ["Lua (루아)", "Python", "C++", "Java"], answer: 0, hint: "임베디드 및 게임 스크립트용으로 가벼운 언어입니다." },
+                    { q: "플레이어 캐릭터가 경사면에서 아래로 미끄러질 때 작용하는 물리 힘의 분해 요소는?", options: ["중력의 경사면 평행 분력", "부력", "전자기력", "원심력"], answer: 0, hint: "중력이 경사면 방향으로 작용하는 힘입니다." },
+                    { q: "오브젝트에 닿았을 때 이벤트를 발생시키는 로블록스 이벤트 함수는?", options: ["Touched", "Clicked", "Destroyed", "Spawned"], answer: 0, hint: "'접촉되었을 때'를 뜻하는 영어 단어입니다." },
+                    { q: "로블록스 스튜디오에서 물체끼리 뚫고 지나가지 않게 설정하는 속성은?", options: ["CanCollide = true", "Anchored = true", "Transparency = 1", "Reflectance = 0"], answer: 0, hint: "충돌 가능 여부를 설정하는 속성입니다." },
+                    { q: "물체가 공중에 둥둥 떠있게(고정) 만드는 속성은?", options: ["Anchored", "Material", "Color", "Size"], answer: 0, hint: "앵커(고정) 속성을 true로 설정합니다." },
+                    { q: "변수 `local speed = 10` 에서 `speed`는 어떤 데이터 타입인가?", options: ["숫자 (Number)", "문자열 (String)", "불리언 (Boolean)", "배열 (Array)"], answer: 0, hint: "10은 수치 데이터를 뜻합니다." },
+                    { q: "3D 공간에서 두 점 사이의 거리를 구하는 공식의 기초가 되는 수학 정리는?", options: ["피타고라스 정리 (3차원)", "이항 정리", "근의 공식", "나머지 정리"], answer: 0, hint: "a² + b² + c² = d² 형태의 거리 계산 정리입니다." },
+                    { q: "빛의 반사율을 조정하여 금속이나 유리 질감을 표현하는 속성은?", options: ["Reflectance", "Transparency", "Friction", "Density"], answer: 0, hint: "반사도를 뜻하는 영단어입니다." },
+                    { q: "서버와 클라이언트 간에 신호를 주고받는 로블록스 객체는?", options: ["RemoteEvent", "Part", "Script", "Folder"], answer: 0, hint: "원격 이벤트를 전송하는 객체입니다." }
+                ]
+            }
+        };
+
+        // Application Engine State
+        class AppEngine {
+            constructor() {
+                this.currentUser = null; // { name, idNum, grade, classNum, num }
+                this.activeTheme = null;
+                this.currentStageIndex = 0;
+                this.timerInterval = null;
+                this.startTime = null;
+                this.elapsedSeconds = 0;
+                
+                // Decrypted Fragments state map
+                this.decryptedFragments = {
+                    valorant: false,
+                    minecraft: false,
+                    animal: false,
+                    brawl: false,
+                    kpop: false,
+                    lol: false,
+                    roblox: false
+                };
+            }
+
+            init() {
+                // Attach global touch listener to unlock audio on mobile
+                document.addEventListener('touchstart', () => sfx.init(), { once: true });
+                document.addEventListener('click', () => sfx.init(), { once: true });
+
+                this.loadLocalStorage();
+                this.render();
+            }
+
+            loadLocalStorage() {
+                try {
+                    const savedUser = localStorage.getItem('nsm_user');
+                    if (savedUser) this.currentUser = JSON.parse(savedUser);
+
+                    const savedFrags = localStorage.getItem('nsm_fragments');
+                    if (savedFrags) this.decryptedFragments = JSON.parse(savedFrags);
+
+                    const savedTime = localStorage.getItem('nsm_elapsed_time');
+                    if (savedTime) this.elapsedSeconds = parseInt(savedTime, 10) || 0;
+                } catch(e){}
+            }
+
+            saveLocalStorage() {
+                try {
+                    if (this.currentUser) localStorage.getItem('nsm_user', JSON.stringify(this.currentUser));
+                    localStorage.setItem('nsm_fragments', JSON.stringify(this.decryptedFragments));
+                    localStorage.setItem('nsm_elapsed_time', this.elapsedSeconds.toString());
+                } catch(e){}
+            }
+
+            showToast(msg, isSuccess = true) {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMessage');
+                const toastIcon = document.getElementById('toastIcon');
+
+                toastMsg.textContent = msg;
+                if (isSuccess) {
+                    toast.className = "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-5 py-3 rounded-xl bg-slate-900/95 border border-cyber-green/50 text-cyber-green shadow-2xl flex items-center gap-3 text-sm";
+                    toastIcon.className = "fa-solid fa-circle-check";
+                } else {
+                    toast.className = "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-5 py-3 rounded-xl bg-slate-900/95 border border-cyber-danger/50 text-cyber-danger shadow-2xl flex items-center gap-3 text-sm";
+                    toastIcon.className = "fa-solid fa-circle-exclamation";
+                }
+
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }
+
+            startTimer() {
+                if (this.timerInterval) return;
+                this.timerInterval = setInterval(() => {
+                    this.elapsedSeconds++;
+                    this.updateTimerDisplay();
+                    if (this.elapsedSeconds % 5 === 0) this.saveLocalStorage();
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            formatTime(totalSec) {
+                const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+                const s = (totalSec % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            }
+
+            updateTimerDisplay() {
+                const el = document.getElementById('timerText');
+                if (el) el.textContent = this.formatTime(this.elapsedSeconds);
+            }
+
+            // Parse student ID (e.g., 10315 -> 1학년 3반 15번)
+            parseStudentId(idStr) {
+                const clean = idStr.replace(/[^0-9]/g, '');
+                if (clean.length < 4) return null;
+                
+                const grade = clean.substring(0, 1);
+                let classNum, num;
+                if (clean.length === 5) {
+                    classNum = parseInt(clean.substring(1, 3), 10);
+                    num = parseInt(clean.substring(3, 5), 10);
+                } else {
+                    classNum = parseInt(clean.substring(1, 2), 10);
+                    num = parseInt(clean.substring(2), 10);
+                }
+
+                return {
+                    grade,
+                    classNum,
+                    num,
+                    formatted: `${grade}학년 ${classNum}반 ${num}번`
+                };
+            }
+
+            registerUser(event) {
+                event.preventDefault();
+                const nameInput = document.getElementById('regName').value.trim();
+                const idInput = document.getElementById('regIdNum').value.trim();
+
+                if (!nameInput) {
+                    this.showToast("학생 이름을 입력해주세요.", false);
+                    return;
+                }
+
+                const parsed = this.parseStudentId(idInput);
+                if (!parsed) {
+                    this.showToast("학번을 4~5자리 숫자로 정확히 입력해 주세요. (예: 10315)", false);
+                    return;
+                }
+
+                this.currentUser = {
+                    name: nameInput,
+                    idNum: idInput,
+                    parsedInfo: parsed.formatted,
+                    grade: parsed.grade,
+                    classNum: parsed.classNum,
+                    num: parsed.num
+                };
+
+                localStorage.setItem('nsm_user', JSON.stringify(this.currentUser));
+                sfx.playSuccess();
+                this.showToast(`${parsed.formatted} ${nameInput} 요원 등록 완료!`);
+                this.startTimer();
+                this.render();
+            }
+
+            logoutUser() {
+                if (confirm("정말 다른 요원으로 변경하시겠습니까? 현재 진행 상황은 초기화될 수 있습니다.")) {
+                    localStorage.removeItem('nsm_user');
+                    this.currentUser = null;
+                    this.render();
+                }
+            }
+
+            showHome() {
+                this.activeTheme = null;
+                this.render();
+            }
+
+            selectTheme(themeId) {
+                sfx.playBeep(700, 0.08);
+                this.activeTheme = THEMES_DATA[themeId];
+                this.currentStageIndex = 0;
+                this.render();
+            }
+
+            submitAnswer(optionIdx) {
+                const stage = this.activeTheme.stages[this.currentStageIndex];
+                if (optionIdx === stage.answer) {
+                    sfx.playSuccess();
+                    this.showToast("정답입니다! 다음 보안 레이어로 이동합니다.");
+                    
+                    if (this.currentStageIndex < this.activeTheme.stages.length - 1) {
+                        this.currentStageIndex++;
+                        this.render();
+                    } else {
+                        // Theme Complete! Decrypt code fragment
+                        this.decryptedFragments[this.activeTheme.id] = true;
+                        this.saveLocalStorage();
+                        sfx.playDecrypt();
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                        this.renderThemeCompleteModal();
+                    }
+                } else {
+                    sfx.playError();
+                    this.showToast("암호 해독 실패! 다시 시도하세요.", false);
+                }
+            }
+
+            showHint() {
+                const stage = this.activeTheme.stages[this.currentStageIndex];
+                alert(`💡 보안 힌트:\n${stage.hint}`);
+            }
+
+            verifyFinalOverride() {
+                const input = document.getElementById('overrideInput').value.trim();
+                if (input === FINAL_OVERRIDE_CODE) {
+                    sfx.playSuccess();
+                    confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+                    this.saveRecordToTeacherStore();
+                    this.showCertificate();
+                } else {
+                    sfx.playError();
+                    this.showToast("오버라이드 코드가 일치하지 않습니다. (7글자 확인)", false);
+                }
+            }
+
+            saveRecordToTeacherStore() {
+                try {
+                    let records = JSON.parse(localStorage.getItem('nsm_teacher_records') || '[]');
+                    const record = {
+                        student: `${this.currentUser.parsedInfo} ${this.currentUser.name}`,
+                        completedCount: Object.values(this.decryptedFragments).filter(Boolean).length,
+                        time: this.formatTime(this.elapsedSeconds),
+                        date: new Date().toLocaleString('ko-KR')
+                    };
+                    records.push(record);
+                    localStorage.setItem('nsm_teacher_records', JSON.stringify(records));
+                } catch(e){}
+            }
+
+            // UI Render Routers
+            render() {
+                const container = document.getElementById('appContainer');
+                
+                // 1. User Registration View
+                if (!this.currentUser) {
+                    container.innerHTML = this.templateRegistration();
+                    return;
+                }
+
+                // 2. Active Gameplay View
+                if (this.activeTheme) {
+                    container.innerHTML = this.templateGameplay();
+                    return;
+                }
+
+                // 3. Theme Selection & Fragment Hub View
+                container.innerHTML = this.templateHub();
+                this.startTimer();
+            }
+
+            templateRegistration() {
+                return `
+                <div class="max-w-md mx-auto w-full bg-cyber-card border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+                    <div class="text-center space-y-2">
+                        <div class="w-16 h-16 mx-auto rounded-2xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green text-2xl shadow-lg">
+                            <i class="fa-solid fa-user-lock"></i>
+                        </div>
+                        <h2 class="text-xl font-black text-white">사이버 보안 요원 등록</h2>
+                        <p class="text-xs text-slate-400">국립중앙과학관 암호 해독 미션에 접속합니다.</p>
+                    </div>
+
+                    <form onsubmit="app.registerUser(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">학생 이름</label>
+                            <input type="text" id="regName" placeholder="예: 홍길동" required
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-cyber-green focus:outline-none transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">학번 (4~5자리 숫자)</label>
+                            <input type="number" id="regIdNum" placeholder="예: 10315 (1학년 3반 15번)" required
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-cyber-green focus:outline-none transition">
+                            <p class="text-[11px] text-slate-500 mt-1">* 학번 예시: 10315 -> 1학년 3반 15번 자동 인식</p>
+                        </div>
+
+                        <button type="submit" 
+                            class="w-full py-3.5 bg-gradient-to-r from-cyber-green to-cyber-blue text-black font-extrabold rounded-xl shadow-lg hover:brightness-110 active:scale-98 transition text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-key"></i> 보안 접속 시작
+                        </button>
+                    </form>
+                </div>
+                `;
+            }
+
+            templateHub() {
+                const totalCompleted = Object.values(this.decryptedFragments).filter(Boolean).length;
+                
+                // Assemble decrypted phrase representation
+                const keys = Object.keys(SYSTEM_SECRET_FRAGMENTS);
+                const fragmentDisplay = keys.map(k => {
+                    const info = SYSTEM_SECRET_FRAGMENTS[k];
+                    const isDecrypted = this.decryptedFragments[k];
+                    return `
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-12 md:w-12 md:h-14 rounded-xl flex items-center justify-center font-mono text-lg font-black border transition-all ${
+                                isDecrypted 
+                                ? 'bg-cyber-green/20 border-cyber-green text-cyber-green shadow-[0_0_12px_rgba(0,255,204,0.3)]' 
+                                : 'bg-slate-900/80 border-slate-800 text-slate-600'
+                            }">
+                                ${isDecrypted ? info.char : '🔒'}
+                            </div>
+                            <span class="text-[10px] text-slate-500 mt-1">${info.index + 1}번</span>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                <div class="space-y-6">
+                    <!-- User Status Bar -->
+                    <div class="bg-cyber-card border border-slate-800 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-cyber-blue/20 text-cyber-blue border border-cyber-blue/40 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-user-astronaut"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>${this.currentUser.name} 요원</span>
+                                    <span class="text-xs font-normal text-slate-400">(${this.currentUser.parsedInfo})</span>
+                                </div>
+                                <div class="text-xs text-cyber-green flex items-center gap-2 mt-0.5">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span id="timerText" class="font-mono font-bold">${this.formatTime(this.elapsedSeconds)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="app.logoutUser()" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50">
+                            요원 변경
+                        </button>
+                    </div>
+
+                    <!-- Encrypted Central Override Fragment Dashboard -->
+                    <div class="bg-gradient-to-r from-slate-950 via-cyber-card to-slate-950 border border-cyber-green/30 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <div>
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-user-shield text-cyber-green"></i> 중앙 시스템 암호화 해킹 코드 조각
+                                </h3>
+                                <p class="text-xs text-slate-400">7개 문화 테마의 STEAM 미션을 완료하여 7개 해독 조각을 모두 수집하세요.</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-cyber-green/10 border border-cyber-green/30 text-cyber-green">
+                                해독 진행률: ${totalCompleted} / 7
+                            </span>
+                        </div>
+
+                        <!-- Code Slots -->
+                        <div class="flex justify-between items-center gap-1 md:gap-3 py-2 border-y border-slate-800/80 overflow-x-auto">
+                            ${fragmentDisplay}
+                        </div>
+
+                        <!-- Central System Override Input Form -->
+                        <div class="pt-2 flex flex-col md:flex-row gap-2">
+                            <input type="text" id="overrideInput" placeholder="7글자 중앙 제어 코드 입력 (예: 국립중앙과학관)" 
+                                class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-center md:text-left text-white placeholder-slate-500 focus:border-cyber-green focus:outline-none">
+                            <button onclick="app.verifyFinalOverride()" class="px-6 py-2.5 bg-cyber-green text-black font-extrabold rounded-xl shadow-lg hover:brightness-110 transition text-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-unlock-keyhole"></i> 최종 시스템 오버라이드
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Theme Selection Grid -->
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-cubes-stacked text-cyber-blue"></i> STEAM 7대 문화 테마 해킹 미션
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            ${Object.values(THEMES_DATA).map(t => {
+                                const isDone = this.decryptedFragments[t.id];
+                                return `
+                                <div onclick="app.selectTheme('${t.id}')" 
+                                    class="bg-cyber-card border border-slate-800 hover:border-slate-600 rounded-2xl p-4 cursor-pointer transform active:scale-98 transition-all shadow-md relative overflow-hidden group">
+                                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${t.color} opacity-10 rounded-bl-full group-hover:opacity-20 transition"></div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${t.color} text-white flex items-center justify-center text-lg shadow-md">
+                                            <i class="fa-solid ${t.icon}"></i>
+                                        </div>
+                                        ${isDone ? `
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyber-green/20 text-cyber-green border border-cyber-green/40 flex items-center gap-1">
+                                                <i class="fa-solid fa-check"></i> 해독 완료
+                                            </span>
+                                        ` : `
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                                                🔒 조각 잠김
+                                            </span>
+                                        `}
+                                    </div>
+                                    <h4 class="font-bold text-base text-white group-hover:text-cyber-green transition">${t.title}</h4>
+                                    <p class="text-xs text-slate-400 mt-1">${t.subTitle}</p>
+                                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-xs text-slate-500">
+                                        <span>10개 STEAM 미션</span>
+                                        <span class="text-cyber-blue group-hover:translate-x-1 transition flex items-center gap-1">
+                                            도전하기 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            templateGameplay() {
+                const stage = this.activeTheme.stages[this.currentStageIndex];
+                const progressPercent = Math.round(((this.currentStageIndex + 1) / this.activeTheme.stages.length) * 100);
+
+                return `
+                <div class="max-w-2xl mx-auto w-full space-y-5">
+                    <!-- Top Navigation & Stage Header -->
+                    <div class="flex items-center justify-between">
+                        <button onclick="app.showHome()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
+                            <i class="fa-solid fa-arrow-left"></i> 허브로 돌아가기
+                        </button>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${this.activeTheme.badgeColor} border">
+                            ${this.activeTheme.title} 미션
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="bg-cyber-card border border-slate-800 rounded-2xl p-4 space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
+                            <span>보안 스테이지 ${this.currentStageIndex + 1} / ${this.activeTheme.stages.length}</span>
+                            <span class="text-cyber-green">${progressPercent}% 해독 진행중</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-gradient-to-r ${this.activeTheme.color} h-2.5 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="bg-cyber-card border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+                        <div class="space-y-2">
+                            <span class="text-xs font-mono text-cyber-blue">STAGE_LAYER_0${this.currentStageIndex + 1}</span>
+                            <h3 class="text-lg md:text-xl font-bold text-white leading-relaxed">
+                                ${stage.q}
+                            </h3>
+                        </div>
+
+                        <!-- Options List -->
+                        <div class="space-y-3">
+                            ${stage.options.map((opt, idx) => `
+                                <button onclick="app.submitAnswer(${idx})" 
+                                    class="w-full text-left p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyber-green/50 hover:bg-slate-800/80 active:scale-98 transition flex items-center justify-between group">
+                                    <span class="text-sm text-slate-200 group-hover:text-white font-medium">${opt}</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-600 group-hover:text-cyber-green transition"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="pt-4 border-t border-slate-800/80 flex justify-between items-center text-xs">
+                            <button onclick="app.showHint()" class="text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-lightbulb"></i> 힌트 보기
+                            </button>
+                            <span class="text-slate-500 font-mono">STEAM ENGINE v3.1</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            renderThemeCompleteModal() {
+                const fragmentInfo = SYSTEM_SECRET_FRAGMENTS[this.activeTheme.id];
+                const container = document.getElementById('appContainer');
+
+                container.innerHTML = `
+                <div class="max-w-md mx-auto w-full bg-cyber-card border-2 border-cyber-green rounded-3xl p-6 md:p-8 text-center space-y-6 shadow-[0_0_30px_rgba(0,255,204,0.2)]">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-cyber-green/20 text-cyber-green flex items-center justify-center text-3xl">
+                        <i class="fa-solid fa-unlock"></i>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h2 class="text-xl font-black text-white">${this.activeTheme.title} 미션 완료!</h2>
+                        <p class="text-xs text-slate-400">10개 보안 레이어를 성공적으로 해독하였습니다.</p>
+                    </div>
+
+                    <div class="bg-slate-950 border border-cyber-green/40 rounded-2xl p-5 space-y-2">
+                        <span class="text-xs text-slate-400">획득한 획기적 해킹 암호 조각 (${fragmentInfo.index + 1}번)</span>
+                        <div class="text-4xl font-black font-mono text-cyber-green text-glow">
+                            [ ${fragmentInfo.char} ]
+                        </div>
+                    </div>
+
+                    <button onclick="app.showHome()" class="w-full py-3.5 bg-cyber-green text-black font-extrabold rounded-xl shadow-lg hover:brightness-110 transition text-sm">
+                        허브로 이동하여 조각 조합하기
+                    </button>
+                </div>
+                `;
+            }
+
+            // Teacher Control Logic
+            showTeacherModal() {
+                document.getElementById('teacherModal').classList.remove('hidden');
+            }
+
+            closeTeacherModal() {
+                document.getElementById('teacherModal').classList.add('hidden');
+            }
+
+            verifyTeacherPasscode() {
+                const input = document.getElementById('teacherPasscode').value;
+                if (input === '1204') {
+                    sfx.playSuccess();
+                    document.getElementById('teacherLoginLayer').classList.add('hidden');
+                    document.getElementById('teacherDashboardLayer').classList.remove('hidden');
+                    this.renderTeacherDashboard();
+                } else {
+                    sfx.playError();
+                    this.showToast("교사 전용 비밀번호가 틀렸습니다.", false);
+                }
+            }
+
+            renderTeacherDashboard() {
+                const records = JSON.parse(localStorage.getItem('nsm_teacher_records') || '[]');
+                document.getElementById('teacherStudentCount').textContent = records.length;
+
+                const tbody = document.getElementById('teacherTableBody');
+                if (records.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">제출된 학생 기록이 없습니다.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = records.map(r => `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-3 font-semibold text-white">${r.student}</td>
+                        <td class="p-3 text-cyber-green font-bold">${r.completedCount} / 7</td>
+                        <td class="p-3 font-mono text-xs">수집 완료</td>
+                        <td class="p-3 text-emerald-400 font-bold">통과 (국립중앙과학관)</td>
+                        <td class="p-3 font-mono text-slate-400">${r.time}</td>
+                    </tr>
+                `).join('');
+            }
+
+            exportCSV() {
+                const records = JSON.parse(localStorage.getItem('nsm_teacher_records') || '[]');
+                if (records.length === 0) {
+                    this.showToast("내보낼 데이터가 없습니다.", false);
+                    return;
+                }
+
+                let csv = "\uFEFF학생정보,완료테마수,상태,소요시간,제출일시\n";
+                records.forEach(r => {
+                    csv += `"${r.student}",${r.completedCount},"성공","${r.time}","${r.date}"\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `국립중앙과학관_해킹탈출_결과_${new Date().toISOString().slice(0,10)}.csv`;
+                link.click();
+            }
+
+            clearTeacherData() {
+                if (confirm("모든 학생 제출 기록을 삭제하시겠습니까?")) {
+                    localStorage.removeItem('nsm_teacher_records');
+                    this.renderTeacherDashboard();
+                    this.showToast("모든 기록이 초기화되었습니다.");
+                }
+            }
+
+            showCertificate() {
+                document.getElementById('certStudentInfo').textContent = `${this.currentUser.parsedInfo} ${this.currentUser.name}`;
+                document.getElementById('certCode').textContent = Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('certificateModal').classList.remove('hidden');
+            }
+
+            closeCertificate() {
+                document.getElementById('certificateModal').classList.add('hidden');
+            }
+        }
+
+        // Global Engine Instance
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new AppEngine();
+            app.init();
+        });
+    </script>
+</body>
+</html>
